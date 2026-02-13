@@ -13,7 +13,7 @@ export default function PersonCard({
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div
-            style={{ backgroundColor: "#3355FF", opacity: 0.1 }}
+            style={{ backgroundColor: "rgba(51, 85, 255, 0.1)" }}
             className="p-3 rounded-full"
           >
             <User style={{ color: "#3355FF" }} size={24} />

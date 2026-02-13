@@ -21,7 +21,9 @@ export default function BorrowBookModal({
       alert("Please select a person");
       return;
     }
-    onBorrow(book.id, parseInt(selectedPerson), borrowedDate);
+    // Use Number() for numeric IDs, but pass as-is if UUID
+    const personId = isNaN(selectedPerson) ? selectedPerson : Number(selectedPerson);
+    onBorrow(book.id, personId, borrowedDate);
     setSelectedPerson("");
     setBorrowedDate(new Date().toISOString().split("T")[0]);
   };

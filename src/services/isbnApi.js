@@ -4,21 +4,57 @@
  * Falls back to Google Books API if Open Library fails
  */
 
-// Open Library API
+// Open Library API - Two-step process to get description
 async function fetchFromOpenLibrary(isbn) {
-  const response = await fetch(
+  // Step 1: Get basic book info
+  const booksResponse = await fetch(
     `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`,
   );
 
-  if (!response.ok) {
+  if (!booksResponse.ok) {
     throw new Error("Open Library API request failed");
   }
 
-  const data = await response.json();
-  const bookData = data[`ISBN:${isbn}`];
+  const booksData = await booksResponse.json();
+  const bookData = booksData[`ISBN:${isbn}`];
 
   if (!bookData) {
     return null;
+  }
+
+  console.log("📚 Open Library Book Data:", bookData);
+
+  // Step 2: Get description from Works API if available
+  let description = "";
+
+  if (bookData.works && bookData.works.length > 0) {
+    try {
+      const workKey = bookData.works[0].key; // e.g., "/works/OL45804W"
+      console.log("📖 Fetching work description from:", workKey);
+
+      const workResponse = await fetch(
+        `https://openlibrary.org${workKey}.json`,
+      );
+
+      if (workResponse.ok) {
+        const workData = await workResponse.json();
+        console.log("📝 Work Data:", workData);
+
+        // Description can be a string or an object with 'value'
+        if (typeof workData.description === "string") {
+          description = workData.description;
+        } else if (workData.description && workData.description.value) {
+          description = workData.description.value;
+        }
+
+        console.log(
+          "✅ Description found:",
+          description.substring(0, 100) + "...",
+        );
+      }
+    } catch (error) {
+      console.warn("Failed to fetch work description:", error);
+    }
   }
 
   // Extract year from publish_date
@@ -30,7 +66,7 @@ async function fetchFromOpenLibrary(isbn) {
 
   return {
     title: bookData.title || "",
-    summary: bookData.notes || bookData.excerpts?.[0]?.text || "",
+    summary: description || "",
     coverUrl:
       bookData.cover?.large ||
       bookData.cover?.medium ||

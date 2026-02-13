@@ -14,7 +14,8 @@ export default function EditPersonModal({ isOpen, onClose, person, onUpdate }) {
   }, [isOpen, person?.id]);
 
   const handleSubmit = () => {
-    onUpdate(person.id, formData);
+    const { name, email, department } = formData;
+    onUpdate(person.id, { name, email, department });
   };
 
   if (!person) return null;

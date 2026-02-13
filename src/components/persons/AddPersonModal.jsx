@@ -10,17 +10,26 @@ export default function AddPersonModal({ isOpen, onClose, onAdd }) {
     department: "",
   });
 
+  const resetForm = () => {
+    setFormData({ name: "", email: "", department: "" });
+  };
+
   const handleSubmit = () => {
     if (!formData.name) {
       alert("Name is required");
       return;
     }
     onAdd(formData);
-    setFormData({ name: "", email: "", department: "" });
+    resetForm();
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Add New Person" size="sm">
+    <Modal isOpen={isOpen} onClose={handleClose} title="Add New Person" size="sm">
       <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -60,7 +69,7 @@ export default function AddPersonModal({ isOpen, onClose, onAdd }) {
           />
         </div>
         <div className="flex gap-3 justify-end pt-4 border-t">
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="secondary" onClick={handleClose}>
             Cancel
           </Button>
           <Button onClick={handleSubmit}>

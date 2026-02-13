@@ -95,8 +95,9 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
     onClose();
   };
 
-  const handleISBNKeyPress = (e) => {
+  const handleISBNKeyDown = (e) => {
     if (e.key === "Enter" && isbn && !isFetching) {
+      e.preventDefault();
       fetchISBN();
     }
   };
@@ -123,7 +124,7 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
                     setIsbn(e.target.value);
                     setFetchError(null);
                   }}
-                  onKeyPress={handleISBNKeyPress}
+                  onKeyDown={handleISBNKeyDown}
                   disabled={isFetching}
                   className="flex-1 px-4 py-2 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3355FF] disabled:bg-gray-100 disabled:cursor-not-allowed"
                 />

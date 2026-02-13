@@ -18,6 +18,7 @@ export async function getAllBooks() {
   return data.map((book) => ({
     ...book,
     borrowedBy: book.borrowed_by,
+    borrowedDate: book.borrowed_date,
     coverUrl: book.cover_url,
     publicationYear: book.publication_year,
     borrower: book.borrower,
@@ -48,6 +49,7 @@ export async function addBook(bookData) {
   return {
     ...data,
     borrowedBy: data.borrowed_by,
+    borrowedDate: data.borrowed_date,
     coverUrl: data.cover_url,
     publicationYear: data.publication_year,
   };
@@ -69,7 +71,12 @@ export async function updateBook(bookId, updates) {
     .from("books")
     .update(dbUpdates)
     .eq("id", bookId)
-    .select()
+    .select(
+      `
+      *,
+      borrower:persons(id, name, email, department)
+    `,
+    )
     .single();
 
   if (error) throw error;
@@ -77,8 +84,10 @@ export async function updateBook(bookId, updates) {
   return {
     ...data,
     borrowedBy: data.borrowed_by,
+    borrowedDate: data.borrowed_date,
     coverUrl: data.cover_url,
     publicationYear: data.publication_year,
+    borrower: data.borrower,
   };
 }
 
@@ -135,6 +144,7 @@ export async function borrowBook(bookId, personId, borrowedDate) {
   return {
     ...data,
     borrowedBy: data.borrowed_by,
+    borrowedDate: data.borrowed_date,
     coverUrl: data.cover_url,
     publicationYear: data.publication_year,
     borrower: data.borrower,
@@ -169,6 +179,7 @@ export async function returnBook(bookId) {
   return {
     ...data,
     borrowedBy: data.borrowed_by,
+    borrowedDate: data.borrowed_date,
     coverUrl: data.cover_url,
     publicationYear: data.publication_year,
   };

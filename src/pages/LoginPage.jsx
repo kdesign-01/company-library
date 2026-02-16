@@ -114,7 +114,6 @@ export default function LoginPage() {
                 onChange={handleChange}
                 disabled={loading}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3355FF] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
-                placeholder="admin@company.com"
               />
             </div>
 
@@ -136,7 +135,6 @@ export default function LoginPage() {
                 onChange={handleChange}
                 disabled={loading}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3355FF] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
-                placeholder="••••••••"
               />
             </div>
 
@@ -160,19 +158,7 @@ export default function LoginPage() {
               )}
             </button>
           </form>
-
-          {/* Admin Notice */}
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <p className="text-center text-sm text-gray-500">
-              Admin access only
-            </p>
-          </div>
         </div>
-
-        {/* Footer */}
-        <p className="text-center text-sm text-gray-600 mt-6">
-          Secure authentication powered by Supabase
-        </p>
       </div>
     </div>
   );

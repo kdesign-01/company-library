@@ -1,4 +1,5 @@
 import React from "react";
+import { PRIMARY_COLOR } from "../../config/constants";
 
 export default function Button({
   children,
@@ -22,7 +23,7 @@ export default function Button({
     lg: "px-6 py-3 text-base",
   };
 
-  const style = variant === "primary" ? { backgroundColor: "#3355FF" } : {};
+  const style = variant === "primary" ? { backgroundColor: PRIMARY_COLOR } : {};
 
   return (
     <button

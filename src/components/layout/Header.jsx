@@ -1,5 +1,5 @@
 import React from "react";
-import { BookOpen, User } from "lucide-react";
+import { BookOpen, User, Sparkles } from "lucide-react";
 import Button from "../common/Button";
 
 export default function Header({
@@ -7,6 +7,7 @@ export default function Header({
   setActiveTab,
   booksCount,
   personsCount,
+  onOpenDailyQuote,
 }) {
   return (
     <header className="bg-white shadow-sm border-b">
@@ -27,6 +28,14 @@ export default function Header({
             </div>
           </div>
           <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              onClick={onOpenDailyQuote}
+              className="hidden sm:flex"
+            >
+              <Sparkles size={18} />
+              My daily quote
+            </Button>
             <Button
               variant={activeTab === "books" ? "primary" : "ghost"}
               onClick={() => setActiveTab("books")}

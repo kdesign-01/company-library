@@ -1,12 +1,13 @@
 import React, { useEffect, useRef } from "react";
 import { Check, AlertCircle } from "lucide-react";
+import { TOAST_DURATION } from "../../config/constants";
 
 export default function Toast({ message, type = "success", onClose }) {
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
 
   useEffect(() => {
-    const timer = setTimeout(() => onCloseRef.current(), 3000);
+    const timer = setTimeout(() => onCloseRef.current(), TOAST_DURATION);
     return () => clearTimeout(timer);
   }, [message]);
 

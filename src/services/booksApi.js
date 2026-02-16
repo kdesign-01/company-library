@@ -1,5 +1,22 @@
 import { supabase } from "./supabase";
 
+/**
+ * Transform book data from snake_case (database) to camelCase (JavaScript)
+ * @param {Object} book - Book data from database
+ * @returns {Object} Transformed book data with camelCase properties
+ */
+function transformBookData(book) {
+  return {
+    ...book,
+    borrowedBy: book.borrowed_by,
+    borrowedDate: book.borrowed_date,
+    sourceUrl: book.source_url,
+    coverUrl: book.cover_url,
+    publicationYear: book.publication_year,
+    borrower: book.borrower,
+  };
+}
+
 // Get all books
 export async function getAllBooks() {
   const { data, error } = await supabase
@@ -15,15 +32,7 @@ export async function getAllBooks() {
   if (error) throw error;
 
   // Transform data to match our component structure
-  return data.map((book) => ({
-    ...book,
-    borrowedBy: book.borrowed_by,
-    borrowedDate: book.borrowed_date,
-    sourceUrl: book.source_url,
-    coverUrl: book.cover_url,
-    publicationYear: book.publication_year,
-    borrower: book.borrower,
-  }));
+  return data.map(transformBookData);
 }
 
 // Add a new book
@@ -48,14 +57,7 @@ export async function addBook(bookData) {
 
   if (error) throw error;
 
-  return {
-    ...data,
-    borrowedBy: data.borrowed_by,
-    borrowedDate: data.borrowed_date,
-    sourceUrl: data.source_url,
-    coverUrl: data.cover_url,
-    publicationYear: data.publication_year,
-  };
+  return transformBookData(data);
 }
 
 // Update a book
@@ -85,15 +87,7 @@ export async function updateBook(bookId, updates) {
 
   if (error) throw error;
 
-  return {
-    ...data,
-    borrowedBy: data.borrowed_by,
-    borrowedDate: data.borrowed_date,
-    sourceUrl: data.source_url,
-    coverUrl: data.cover_url,
-    publicationYear: data.publication_year,
-    borrower: data.borrower,
-  };
+  return transformBookData(data);
 }
 
 // Delete a book
@@ -146,15 +140,7 @@ export async function borrowBook(bookId, personId, borrowedDate) {
     },
   ]);
 
-  return {
-    ...data,
-    borrowedBy: data.borrowed_by,
-    borrowedDate: data.borrowed_date,
-    sourceUrl: data.source_url,
-    coverUrl: data.cover_url,
-    publicationYear: data.publication_year,
-    borrower: data.borrower,
-  };
+  return transformBookData(data);
 }
 
 // Return a book
@@ -182,12 +168,5 @@ export async function returnBook(bookId) {
 
   if (error) throw error;
 
-  return {
-    ...data,
-    borrowedBy: data.borrowed_by,
-    borrowedDate: data.borrowed_date,
-    sourceUrl: data.source_url,
-    coverUrl: data.cover_url,
-    publicationYear: data.publication_year,
-  };
+  return transformBookData(data);
 }

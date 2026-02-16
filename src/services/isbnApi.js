@@ -4,6 +4,11 @@
  * Falls back to Google Books API if Open Library fails
  */
 
+// Environment-aware logging (only logs in development)
+const isDev = import.meta.env.DEV;
+const log = isDev ? console.log : () => {};
+const warn = isDev ? console.warn : () => {};
+
 // Open Library API - Two-step process to get description
 async function fetchFromOpenLibrary(isbn) {
   // Step 1: Get basic book info
@@ -22,7 +27,7 @@ async function fetchFromOpenLibrary(isbn) {
     return null;
   }
 
-  console.log("📚 Open Library Book Data:", bookData);
+  log("📚 Open Library Book Data:", bookData);
 
   // Step 2: Get description from Works API if available
   let description = "";
@@ -32,7 +37,7 @@ async function fetchFromOpenLibrary(isbn) {
     try {
       const workKey = bookData.works[0].key; // e.g., "/works/OL45804W"
       sourceUrl = `https://openlibrary.org${workKey}`; // Build source URL
-      console.log("📖 Fetching work description from:", workKey);
+      log("📖 Fetching work description from:", workKey);
 
       const workResponse = await fetch(
         `https://openlibrary.org${workKey}.json`,
@@ -40,7 +45,7 @@ async function fetchFromOpenLibrary(isbn) {
 
       if (workResponse.ok) {
         const workData = await workResponse.json();
-        console.log("📝 Work Data description field:", workData.description);
+        log("📝 Work Data description field:", workData.description);
 
         // Description can be a string or an object with 'value'
         if (typeof workData.description === "string") {
@@ -50,32 +55,32 @@ async function fetchFromOpenLibrary(isbn) {
         }
 
         if (description) {
-          console.log(
+          log(
             "✅ Description found:",
             description.substring(0, 100) + (description.length > 100 ? "..." : ""),
           );
         } else {
-          console.log("⚠️ Works API returned no description");
+          log("⚠️ Works API returned no description");
         }
       } else {
-        console.warn("⚠️ Works API request failed with status:", workResponse.status);
+        warn("⚠️ Works API request failed with status:", workResponse.status);
       }
     } catch (error) {
-      console.warn("❌ Failed to fetch work description:", error);
+      warn("❌ Failed to fetch work description:", error);
     }
   } else {
-    console.log("ℹ️ No works data available for this book");
+    log("ℹ️ No works data available for this book");
   }
 
   // Step 3: Fallback to excerpts or notes if description is still empty
   if (!description) {
-    console.log("🔍 Trying fallback sources for description...");
+    log("🔍 Trying fallback sources for description...");
 
     // Try excerpts first
     if (bookData.excerpts && bookData.excerpts.length > 0) {
       description = bookData.excerpts[0].text?.trim() || "";
       if (description) {
-        console.log("✅ Found description in excerpts");
+        log("✅ Found description in excerpts");
       }
     }
 
@@ -86,12 +91,12 @@ async function fetchFromOpenLibrary(isbn) {
         : bookData.notes.value || ""
       ).trim();
       if (description) {
-        console.log("✅ Found description in notes");
+        log("✅ Found description in notes");
       }
     }
 
     if (!description) {
-      console.log("❌ No description found from any source");
+      log("❌ No description found from any source");
     }
   }
 
@@ -202,7 +207,7 @@ export async function fetchBookByISBN(isbn) {
       };
     }
   } catch (error) {
-    console.warn("Open Library failed, trying Google Books:", error.message);
+    warn("Open Library failed, trying Google Books:", error.message);
   }
 
   try {
@@ -216,7 +221,7 @@ export async function fetchBookByISBN(isbn) {
       };
     }
   } catch (error) {
-    console.warn("Google Books failed:", error.message);
+    warn("Google Books failed:", error.message);
   }
 
   // No data found from any source

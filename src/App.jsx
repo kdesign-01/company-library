@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useDebounce } from "./hooks/useDebounce";
 import Header from "./components/layout/Header";
 import BooksView from "./components/books/BooksView";
 import PersonsView from "./components/persons/PersonsView";
@@ -7,9 +8,11 @@ import EditBookModal from "./components/books/EditBookModal";
 import BorrowBookModal from "./components/books/BorrowBookModal";
 import AddPersonModal from "./components/persons/AddPersonModal";
 import EditPersonModal from "./components/persons/EditPersonModal";
+import DailyQuotePopover from "./components/common/DailyQuotePopover";
 import Toast from "./components/common/Toast";
 import * as booksApi from "./services/booksApi";
 import * as personsApi from "./services/personsApi";
+import * as quotesApi from "./services/quotesApi";
 
 export default function App() {
   // State
@@ -20,6 +23,9 @@ export default function App() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [loading, setLoading] = useState(true);
 
+  // Debounce search query for better performance
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
   // Modal states
   const [selectedBook, setSelectedBook] = useState(null);
   const [bookToEdit, setBookToEdit] = useState(null);
@@ -29,6 +35,12 @@ export default function App() {
   const [isBorrowModalOpen, setIsBorrowModalOpen] = useState(false);
   const [isAddPersonModalOpen, setIsAddPersonModalOpen] = useState(false);
   const [isEditPersonModalOpen, setIsEditPersonModalOpen] = useState(false);
+
+  // Daily quote state
+  const [isDailyQuoteOpen, setIsDailyQuoteOpen] = useState(false);
+  const [dailyQuote, setDailyQuote] = useState(null);
+  const [quoteLoading, setQuoteLoading] = useState(false);
+  const [quoteError, setQuoteError] = useState(null);
 
   // Toast state
   const [toast, setToast] = useState(null);
@@ -174,17 +186,38 @@ export default function App() {
     setToast({ message, type });
   };
 
-  // Filter books
-  const filteredBooks = books.filter((book) => {
-    const matchesSearch =
-      book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      book.isbn?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (book.borrower &&
-        book.borrower.name.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesStatus =
-      statusFilter === "all" || book.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  // Daily Quote Function
+  const openDailyQuote = async () => {
+    setIsDailyQuoteOpen(true);
+    setQuoteLoading(true);
+    setQuoteError(null);
+
+    try {
+      const quote = await quotesApi.getDailyQuote();
+      setDailyQuote(quote);
+    } catch (error) {
+      console.error("Error fetching daily quote:", error);
+      setQuoteError(
+        error.message || "Failed to load daily quote. Please try again later.",
+      );
+    } finally {
+      setQuoteLoading(false);
+    }
+  };
+
+  // Memoize filtered books for better performance
+  const filteredBooks = useMemo(() => {
+    return books.filter((book) => {
+      const matchesSearch =
+        book.title.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+        book.isbn?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+        (book.borrower &&
+          book.borrower.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()));
+      const matchesStatus =
+        statusFilter === "all" || book.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [books, debouncedSearchQuery, statusFilter]);
 
   if (loading) {
     return (
@@ -221,6 +254,7 @@ export default function App() {
         setActiveTab={setActiveTab}
         booksCount={books.length}
         personsCount={persons.length}
+        onOpenDailyQuote={openDailyQuote}
       />
 
       {/* Main Content */}
@@ -301,6 +335,15 @@ export default function App() {
         }}
         person={personToEdit}
         onUpdate={updatePerson}
+      />
+
+      {/* Daily Quote Popover */}
+      <DailyQuotePopover
+        isOpen={isDailyQuoteOpen}
+        onClose={() => setIsDailyQuoteOpen(false)}
+        quote={dailyQuote}
+        loading={quoteLoading}
+        error={quoteError}
       />
 
       {/* Toast */}

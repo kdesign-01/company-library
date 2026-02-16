@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { BookOpen, Edit2, Trash2, User, Calendar } from "lucide-react";
+import { BookOpen, Edit2, Trash2, User, Calendar, ExternalLink } from "lucide-react";
 import Button from "../common/Button";
 import Badge from "../common/Badge";
 
@@ -17,7 +17,7 @@ export default function BookRow({
     : null;
 
   return (
-    <tr className="hover:bg-gray-50 transition-colors">
+    <tr className="group hover:bg-gray-50 transition-colors">
       <td className="px-6 py-4">
         <div className="flex items-center gap-4">
           {book.coverUrl && !imageError ? (
@@ -33,7 +33,23 @@ export default function BookRow({
             </div>
           )}
           <div>
-            <div className="font-semibold text-gray-900">{book.title}</div>
+            {book.sourceUrl ? (
+              <a
+                href={book.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-[#2C2C2B] group-hover:text-[#3355FF] hover:underline flex items-center gap-1 group/link transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {book.title}
+                <ExternalLink
+                  size={14}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                />
+              </a>
+            ) : (
+              <div className="font-semibold text-gray-900">{book.title}</div>
+            )}
             <div className="text-sm text-gray-500">
               ISBN: {book.isbn || "N/A"}
             </div>

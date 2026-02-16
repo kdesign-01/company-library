@@ -26,10 +26,12 @@ async function fetchFromOpenLibrary(isbn) {
 
   // Step 2: Get description from Works API if available
   let description = "";
+  let sourceUrl = "";
 
   if (bookData.works && bookData.works.length > 0) {
     try {
       const workKey = bookData.works[0].key; // e.g., "/works/OL45804W"
+      sourceUrl = `https://openlibrary.org${workKey}`; // Build source URL
       console.log("📖 Fetching work description from:", workKey);
 
       const workResponse = await fetch(
@@ -93,6 +95,14 @@ async function fetchFromOpenLibrary(isbn) {
     }
   }
 
+  // Step 4: Fallback source URL if no works data
+  if (!sourceUrl && bookData.key) {
+    sourceUrl = `https://openlibrary.org${bookData.key}`;
+  } else if (!sourceUrl) {
+    // Last resort: use ISBN link
+    sourceUrl = `https://openlibrary.org/isbn/${isbn}`;
+  }
+
   // Extract year from publish_date
   const extractYear = (dateString) => {
     if (!dateString) return null;
@@ -103,6 +113,7 @@ async function fetchFromOpenLibrary(isbn) {
   return {
     title: bookData.title || "",
     summary: description || "",
+    sourceUrl: sourceUrl || "",
     coverUrl:
       bookData.cover?.large ||
       bookData.cover?.medium ||
@@ -134,6 +145,12 @@ async function fetchFromGoogleBooks(isbn) {
   }
 
   const book = data.items[0].volumeInfo;
+  const volumeId = data.items[0].id;
+
+  // Build Google Books source URL
+  const sourceUrl = data.items[0].selfLink
+    ? data.items[0].selfLink.replace('www.googleapis.com/books/v1/volumes', 'books.google.com/books?id')
+    : `https://books.google.com/books?id=${volumeId}`;
 
   // Extract year from publishedDate
   const extractYear = (dateString) => {
@@ -145,6 +162,7 @@ async function fetchFromGoogleBooks(isbn) {
   return {
     title: book.title || "",
     summary: book.description || "",
+    sourceUrl: sourceUrl || "",
     coverUrl:
       book.imageLinks?.large ||
       book.imageLinks?.medium ||

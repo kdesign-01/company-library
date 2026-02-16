@@ -13,6 +13,7 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
   const [formData, setFormData] = useState({
     title: "",
     summary: "",
+    sourceUrl: "",
     coverUrl: "",
     publicationYear: "",
     language: "",
@@ -42,6 +43,7 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
           ...formData,
           title: result.data.title,
           summary: result.data.summary,
+          sourceUrl: result.data.sourceUrl,
           coverUrl: result.data.coverUrl,
           publicationYear: result.data.publicationYear || "",
           language: result.data.language,
@@ -86,6 +88,7 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
     setFormData({
       title: "",
       summary: "",
+      sourceUrl: "",
       coverUrl: "",
       publicationYear: "",
       language: "",
@@ -290,6 +293,23 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
                   }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3355FF]"
                 />
+              </div>
+              <div className="col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Source URL (optional)
+                </label>
+                <input
+                  type="url"
+                  value={formData.sourceUrl}
+                  onChange={(e) =>
+                    setFormData({ ...formData, sourceUrl: e.target.value })
+                  }
+                  placeholder="https://openlibrary.org/works/..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3355FF]"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Auto-filled when fetching from ISBN. Link to book's source page.
+                </p>
               </div>
             </div>
             <div className="flex gap-3 justify-end pt-4 border-t">

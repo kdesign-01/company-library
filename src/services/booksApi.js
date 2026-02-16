@@ -19,6 +19,7 @@ export async function getAllBooks() {
     ...book,
     borrowedBy: book.borrowed_by,
     borrowedDate: book.borrowed_date,
+    sourceUrl: book.source_url,
     coverUrl: book.cover_url,
     publicationYear: book.publication_year,
     borrower: book.borrower,
@@ -33,6 +34,7 @@ export async function addBook(bookData) {
       {
         title: bookData.title,
         summary: bookData.summary,
+        source_url: bookData.sourceUrl,
         cover_url: bookData.coverUrl,
         publication_year: bookData.publicationYear,
         language: bookData.language,
@@ -50,6 +52,7 @@ export async function addBook(bookData) {
     ...data,
     borrowedBy: data.borrowed_by,
     borrowedDate: data.borrowed_date,
+    sourceUrl: data.source_url,
     coverUrl: data.cover_url,
     publicationYear: data.publication_year,
   };
@@ -60,6 +63,7 @@ export async function updateBook(bookId, updates) {
   const dbUpdates = {
     title: updates.title,
     summary: updates.summary,
+    source_url: updates.sourceUrl,
     cover_url: updates.coverUrl,
     publication_year: updates.publicationYear,
     language: updates.language,
@@ -85,6 +89,7 @@ export async function updateBook(bookId, updates) {
     ...data,
     borrowedBy: data.borrowed_by,
     borrowedDate: data.borrowed_date,
+    sourceUrl: data.source_url,
     coverUrl: data.cover_url,
     publicationYear: data.publication_year,
     borrower: data.borrower,
@@ -145,6 +150,7 @@ export async function borrowBook(bookId, personId, borrowedDate) {
     ...data,
     borrowedBy: data.borrowed_by,
     borrowedDate: data.borrowed_date,
+    sourceUrl: data.source_url,
     coverUrl: data.cover_url,
     publicationYear: data.publication_year,
     borrower: data.borrower,
@@ -180,6 +186,7 @@ export async function returnBook(bookId) {
     ...data,
     borrowedBy: data.borrowed_by,
     borrowedDate: data.borrowed_date,
+    sourceUrl: data.source_url,
     coverUrl: data.cover_url,
     publicationYear: data.publication_year,
   };

@@ -1,6 +1,8 @@
-import React from "react";
-import { BookOpen, User, Sparkles } from "lucide-react";
+import React, { useState } from "react";
+import { BookOpen, User, Sparkles, LogOut } from "lucide-react";
 import Button from "../common/Button";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Header({
   activeTab,
@@ -9,6 +11,17 @@ export default function Header({
   personsCount,
   onOpenDailyQuote,
 }) {
+  const { signOut, user } = useAuth();
+  const navigate = useNavigate();
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    if (window.confirm("Are you sure you want to log out?")) {
+      setLoggingOut(true);
+      await signOut();
+      navigate("/login");
+    }
+  };
   return (
     <header className="bg-white shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
@@ -49,6 +62,15 @@ export default function Header({
             >
               <User size={18} />
               Persons ({personsCount})
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="text-red-600 hover:bg-red-50"
+            >
+              <LogOut size={18} />
+              {loggingOut ? "Logging out..." : "Logout"}
             </Button>
           </div>
         </div>

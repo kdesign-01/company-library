@@ -38,22 +38,58 @@ async function fetchFromOpenLibrary(isbn) {
 
       if (workResponse.ok) {
         const workData = await workResponse.json();
-        console.log("📝 Work Data:", workData);
+        console.log("📝 Work Data description field:", workData.description);
 
         // Description can be a string or an object with 'value'
         if (typeof workData.description === "string") {
-          description = workData.description;
+          description = workData.description.trim();
         } else if (workData.description && workData.description.value) {
-          description = workData.description.value;
+          description = workData.description.value.trim();
         }
 
-        console.log(
-          "✅ Description found:",
-          description.substring(0, 100) + "...",
-        );
+        if (description) {
+          console.log(
+            "✅ Description found:",
+            description.substring(0, 100) + (description.length > 100 ? "..." : ""),
+          );
+        } else {
+          console.log("⚠️ Works API returned no description");
+        }
+      } else {
+        console.warn("⚠️ Works API request failed with status:", workResponse.status);
       }
     } catch (error) {
-      console.warn("Failed to fetch work description:", error);
+      console.warn("❌ Failed to fetch work description:", error);
+    }
+  } else {
+    console.log("ℹ️ No works data available for this book");
+  }
+
+  // Step 3: Fallback to excerpts or notes if description is still empty
+  if (!description) {
+    console.log("🔍 Trying fallback sources for description...");
+
+    // Try excerpts first
+    if (bookData.excerpts && bookData.excerpts.length > 0) {
+      description = bookData.excerpts[0].text?.trim() || "";
+      if (description) {
+        console.log("✅ Found description in excerpts");
+      }
+    }
+
+    // Try notes as last resort
+    if (!description && bookData.notes) {
+      description = (typeof bookData.notes === "string"
+        ? bookData.notes
+        : bookData.notes.value || ""
+      ).trim();
+      if (description) {
+        console.log("✅ Found description in notes");
+      }
+    }
+
+    if (!description) {
+      console.log("❌ No description found from any source");
     }
   }
 

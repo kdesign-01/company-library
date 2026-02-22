@@ -7,6 +7,7 @@ const AuthContext = createContext({});
  * Custom hook to access authentication context
  * @returns {Object} Auth context with user, session, and auth functions
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -31,7 +32,6 @@ export const AuthProvider = ({ children }) => {
     // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event);
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);

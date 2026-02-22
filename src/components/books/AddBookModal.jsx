@@ -3,8 +3,11 @@ import { Plus, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import Modal from "../common/Modal";
 import Button from "../common/Button";
 import { fetchBookByISBN, isValidISBN } from "../../services/isbnApi";
+import CoverImage from "../common/CoverImage";
 
-export default function AddBookModal({ isOpen, onClose, onAdd }) {
+const CURRENT_YEAR = new Date().getFullYear();
+
+export default function AddBookModal({ isOpen, onClose, onAdd, persons = [] }) {
   const [isbn, setIsbn] = useState("");
   const [isbnFetched, setIsbnFetched] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
@@ -230,11 +233,11 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
                 />
                 {formData.coverUrl && (
                   <div className="mt-2">
-                    <img
+                    <CoverImage
                       src={formData.coverUrl}
                       alt="Book cover preview"
-                      className="h-32 object-cover rounded shadow-sm"
-                      onError={(e) => (e.target.style.display = "none")}
+                      containerClassName="h-32 w-20"
+                      imgClassName="h-32 object-cover rounded shadow-sm"
                     />
                   </div>
                 )}
@@ -252,6 +255,8 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
                       publicationYear: e.target.value,
                     })
                   }
+                  min={1000}
+                  max={CURRENT_YEAR}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3355FF]"
                 />
               </div>
@@ -285,14 +290,20 @@ export default function AddBookModal({ isOpen, onClose, onAdd }) {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Owner
                 </label>
-                <input
-                  type="text"
+                <select
                   value={formData.owner}
                   onChange={(e) =>
                     setFormData({ ...formData, owner: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3355FF]"
-                />
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3355FF] bg-white"
+                >
+                  <option value="Company Library">Company Library</option>
+                  {persons.map((person) => (
+                    <option key={person.id} value={person.name}>
+                      {person.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">

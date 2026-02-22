@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import { BookOpen, Edit2, Trash2, User, Calendar, ExternalLink } from "lucide-react";
+import React from "react";
+import { Edit2, Trash2, User, Calendar, ExternalLink } from "lucide-react";
 import Button from "../common/Button";
 import Badge from "../common/Badge";
+import CoverImage from "../common/CoverImage";
 
 export default function BookRow({
   book,
@@ -11,7 +12,6 @@ export default function BookRow({
   onBorrow,
   onReturn,
 }) {
-  const [imageError, setImageError] = useState(false);
   const borrower = book.borrowedBy
     ? persons.find((p) => p.id === book.borrowedBy)
     : null;
@@ -20,18 +20,14 @@ export default function BookRow({
     <tr className="group hover:bg-gray-50 transition-colors">
       <td className="px-6 py-4">
         <div className="flex items-center gap-4">
-          {book.coverUrl && !imageError ? (
-            <img
-              src={book.coverUrl}
-              alt={book.title}
-              className="w-12 h-16 object-cover rounded shadow-sm"
-              onError={() => setImageError(true)}
-            />
-          ) : (
-            <div className="w-12 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded flex items-center justify-center shadow-sm">
-              <BookOpen size={20} className="text-blue-600" />
-            </div>
-          )}
+          <CoverImage
+            src={book.coverUrl}
+            alt={book.title}
+            containerClassName="w-12 h-16 flex-shrink-0"
+            imgClassName="w-full h-full object-cover rounded shadow-sm"
+            showFallback={true}
+            fallbackIconSize={20}
+          />
           <div>
             {book.sourceUrl ? (
               <a

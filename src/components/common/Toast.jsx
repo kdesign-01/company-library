@@ -4,7 +4,10 @@ import { TOAST_DURATION } from "../../config/constants";
 
 export default function Toast({ message, type = "success", onClose }) {
   const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
 
   useEffect(() => {
     const timer = setTimeout(() => onCloseRef.current(), TOAST_DURATION);

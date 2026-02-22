@@ -3,8 +3,11 @@ import { Loader2, CheckCircle, AlertCircle, RefreshCw } from "lucide-react";
 import Modal from "../common/Modal";
 import Button from "../common/Button";
 import { fetchBookByISBN, isValidISBN } from "../../services/isbnApi";
+import CoverImage from "../common/CoverImage";
 
-export default function EditBookModal({ isOpen, onClose, book, onUpdate }) {
+const CURRENT_YEAR = new Date().getFullYear();
+
+export default function EditBookModal({ isOpen, onClose, book, onUpdate, persons = [] }) {
   // Use the book prop directly, create a local copy only when needed
   const [formData, setFormData] = useState({});
   const [isFetching, setIsFetching] = useState(false);
@@ -61,9 +64,8 @@ export default function EditBookModal({ isOpen, onClose, book, onUpdate }) {
         );
       }
     } catch (error) {
-      setFetchError(
-        error.message || "Failed to fetch book data. Please try again."
-      );
+      console.error("Refetch ISBN error:", error);
+      setFetchError("Failed to fetch book data. Please try again.");
     } finally {
       setIsFetching(false);
     }
@@ -125,6 +127,16 @@ export default function EditBookModal({ isOpen, onClose, book, onUpdate }) {
               }
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3355FF]"
             />
+            {formData.coverUrl && (
+              <div className="mt-2">
+                <CoverImage
+                  src={formData.coverUrl}
+                  alt="Book cover preview"
+                  containerClassName="h-32 w-20"
+                  imgClassName="h-32 object-cover rounded shadow-sm"
+                />
+              </div>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -136,6 +148,8 @@ export default function EditBookModal({ isOpen, onClose, book, onUpdate }) {
               onChange={(e) =>
                 setFormData({ ...formData, publicationYear: e.target.value })
               }
+              min={1000}
+              max={CURRENT_YEAR}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3355FF]"
             />
           </div>
@@ -209,14 +223,20 @@ export default function EditBookModal({ isOpen, onClose, book, onUpdate }) {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Owner
             </label>
-            <input
-              type="text"
-              value={formData.owner || ""}
+            <select
+              value={formData.owner || "Company Library"}
               onChange={(e) =>
                 setFormData({ ...formData, owner: e.target.value })
               }
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3355FF]"
-            />
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3355FF] bg-white"
+            >
+              <option value="Company Library">Company Library</option>
+              {persons.map((person) => (
+                <option key={person.id} value={person.name}>
+                  {person.name}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">

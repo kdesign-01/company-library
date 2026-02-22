@@ -2,6 +2,38 @@ import React, { useState, useMemo } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import BookRow from "./BookRow";
 
+function SortableHeader({ column, children, align = "left", sortBy, sortDirection, onSort }) {
+  const isActive = sortBy === column;
+  const textAlign = align === "right" ? "text-right" : "text-left";
+
+  return (
+    <th
+      className={`px-6 py-3 ${textAlign} text-xs font-medium uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 transition-colors ${
+        isActive ? "text-[#3355FF]" : "text-gray-500"
+      }`}
+      onClick={() => onSort(column)}
+    >
+      <div className={`flex items-center gap-1 ${align === "right" ? "justify-end" : ""}`}>
+        {children}
+        <div className="flex flex-col">
+          <ChevronUp
+            size={12}
+            className={`${
+              isActive && sortDirection === "asc" ? "text-[#3355FF]" : "text-gray-300"
+            }`}
+          />
+          <ChevronDown
+            size={12}
+            className={`-mt-1 ${
+              isActive && sortDirection === "desc" ? "text-[#3355FF]" : "text-gray-300"
+            }`}
+          />
+        </div>
+      </div>
+    </th>
+  );
+}
+
 export default function BooksTable({
   books,
   persons,
@@ -59,55 +91,18 @@ export default function BooksTable({
     return sorted;
   }, [books, sortBy, sortDirection]);
 
-  // Render sortable column header
-  const SortableHeader = ({ column, children, align = "left" }) => {
-    const isActive = sortBy === column;
-    const textAlign = align === "right" ? "text-right" : "text-left";
-
-    return (
-      <th
-        className={`px-6 py-3 ${textAlign} text-xs font-medium uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 transition-colors ${
-          isActive ? "text-[#3355FF]" : "text-gray-500"
-        }`}
-        onClick={() => handleSort(column)}
-      >
-        <div className={`flex items-center gap-1 ${align === "right" ? "justify-end" : ""}`}>
-          {children}
-          <div className="flex flex-col">
-            <ChevronUp
-              size={12}
-              className={`${
-                isActive && sortDirection === "asc"
-                  ? "text-[#3355FF]"
-                  : "text-gray-300"
-              }`}
-            />
-            <ChevronDown
-              size={12}
-              className={`-mt-1 ${
-                isActive && sortDirection === "desc"
-                  ? "text-[#3355FF]"
-                  : "text-gray-300"
-              }`}
-            />
-          </div>
-        </div>
-      </th>
-    );
-  };
-
   return (
     <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50 border-b">
             <tr>
-              <SortableHeader column="title">Book</SortableHeader>
-              <SortableHeader column="status">Status</SortableHeader>
+              <SortableHeader column="title" sortBy={sortBy} sortDirection={sortDirection} onSort={handleSort}>Book</SortableHeader>
+              <SortableHeader column="status" sortBy={sortBy} sortDirection={sortDirection} onSort={handleSort}>Status</SortableHeader>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Details
               </th>
-              <SortableHeader column="owner">Owner</SortableHeader>
+              <SortableHeader column="owner" sortBy={sortBy} sortDirection={sortDirection} onSort={handleSort}>Owner</SortableHeader>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>

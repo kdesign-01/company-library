@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useDebounce } from "../hooks/useDebounce";
 import Header from "../components/layout/Header";
 import BooksView from "../components/books/BooksView";
@@ -8,11 +8,9 @@ import EditBookModal from "../components/books/EditBookModal";
 import BorrowBookModal from "../components/books/BorrowBookModal";
 import AddPersonModal from "../components/persons/AddPersonModal";
 import EditPersonModal from "../components/persons/EditPersonModal";
-import DailyQuotePopover from "../components/common/DailyQuotePopover";
 import Toast from "../components/common/Toast";
 import * as booksApi from "../services/booksApi";
 import * as personsApi from "../services/personsApi";
-import * as quotesApi from "../services/quotesApi";
 
 export default function Dashboard() {
   // State
@@ -36,21 +34,10 @@ export default function Dashboard() {
   const [isAddPersonModalOpen, setIsAddPersonModalOpen] = useState(false);
   const [isEditPersonModalOpen, setIsEditPersonModalOpen] = useState(false);
 
-  // Daily quote state
-  const [isDailyQuoteOpen, setIsDailyQuoteOpen] = useState(false);
-  const [dailyQuote, setDailyQuote] = useState(null);
-  const [quoteLoading, setQuoteLoading] = useState(false);
-  const [quoteError, setQuoteError] = useState(null);
-
   // Toast state
   const [toast, setToast] = useState(null);
 
-  // Load data on mount
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const [booksData, personsData] = await Promise.all([
@@ -61,11 +48,16 @@ export default function Dashboard() {
       setPersons(personsData);
     } catch (error) {
       console.error("Error loading data:", error);
-      showToast("Failed to load data: " + error.message, "error");
+      showToast("Failed to load data. Please try again.", "error");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Load data on mount
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   // Book Management Functions
   const addBook = async (bookData) => {
@@ -76,7 +68,7 @@ export default function Dashboard() {
       showToast("Book added successfully!", "success");
     } catch (error) {
       console.error("Error adding book:", error);
-      showToast("Failed to add book: " + error.message, "error");
+      showToast("Failed to add book. Please try again.", "error");
     }
   };
 
@@ -89,7 +81,7 @@ export default function Dashboard() {
       showToast("Book updated successfully!", "success");
     } catch (error) {
       console.error("Error updating book:", error);
-      showToast("Failed to update book: " + error.message, "error");
+      showToast("Failed to update book. Please try again.", "error");
     }
   };
 
@@ -110,7 +102,7 @@ export default function Dashboard() {
         showToast("Book deleted successfully!", "success");
       } catch (error) {
         console.error("Error deleting book:", error);
-        showToast("Failed to delete book: " + error.message, "error");
+        showToast("Failed to delete book. Please try again.", "error");
       }
     }
   };
@@ -128,7 +120,7 @@ export default function Dashboard() {
       showToast("Book borrowed successfully!", "success");
     } catch (error) {
       console.error("Error borrowing book:", error);
-      showToast("Failed to borrow book: " + error.message, "error");
+      showToast("Failed to borrow book. Please try again.", "error");
     }
   };
 
@@ -139,7 +131,7 @@ export default function Dashboard() {
       showToast("Book returned successfully!", "success");
     } catch (error) {
       console.error("Error returning book:", error);
-      showToast("Failed to return book: " + error.message, "error");
+      showToast("Failed to return book. Please try again.", "error");
     }
   };
 
@@ -152,7 +144,7 @@ export default function Dashboard() {
       showToast("Person added successfully!", "success");
     } catch (error) {
       console.error("Error adding person:", error);
-      showToast("Failed to add person: " + error.message, "error");
+      showToast("Failed to add person. Please try again.", "error");
     }
   };
 
@@ -165,7 +157,7 @@ export default function Dashboard() {
       showToast("Person updated successfully!", "success");
     } catch (error) {
       console.error("Error updating person:", error);
-      showToast("Failed to update person: " + error.message, "error");
+      showToast("Failed to update person. Please try again.", "error");
     }
   };
 
@@ -177,32 +169,13 @@ export default function Dashboard() {
         showToast("Person deleted successfully!", "success");
       } catch (error) {
         console.error("Error deleting person:", error);
-        showToast("Failed to delete person: " + error.message, "error");
+        showToast("Failed to delete person. Please try again.", "error");
       }
     }
   };
 
   const showToast = (message, type) => {
     setToast({ message, type });
-  };
-
-  // Daily Quote Function
-  const openDailyQuote = async () => {
-    setIsDailyQuoteOpen(true);
-    setQuoteLoading(true);
-    setQuoteError(null);
-
-    try {
-      const quote = await quotesApi.getDailyQuote();
-      setDailyQuote(quote);
-    } catch (error) {
-      console.error("Error fetching daily quote:", error);
-      setQuoteError(
-        error.message || "Failed to load daily quote. Please try again later.",
-      );
-    } finally {
-      setQuoteLoading(false);
-    }
   };
 
   // Memoize filtered books for better performance
@@ -254,7 +227,6 @@ export default function Dashboard() {
         setActiveTab={setActiveTab}
         booksCount={books.length}
         personsCount={persons.length}
-        onOpenDailyQuote={openDailyQuote}
       />
 
       {/* Main Content */}
@@ -298,6 +270,7 @@ export default function Dashboard() {
         isOpen={isAddBookModalOpen}
         onClose={() => setIsAddBookModalOpen(false)}
         onAdd={addBook}
+        persons={persons}
       />
 
       <EditBookModal
@@ -308,6 +281,7 @@ export default function Dashboard() {
         }}
         book={bookToEdit}
         onUpdate={updateBook}
+        persons={persons}
       />
 
       <BorrowBookModal
@@ -335,15 +309,6 @@ export default function Dashboard() {
         }}
         person={personToEdit}
         onUpdate={updatePerson}
-      />
-
-      {/* Daily Quote Popover */}
-      <DailyQuotePopover
-        isOpen={isDailyQuoteOpen}
-        onClose={() => setIsDailyQuoteOpen(false)}
-        quote={dailyQuote}
-        loading={quoteLoading}
-        error={quoteError}
       />
 
       {/* Toast */}

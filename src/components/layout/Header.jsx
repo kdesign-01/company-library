@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { BookOpen, User, Sparkles, LogOut } from "lucide-react";
+import { BookOpen, User, LogOut } from "lucide-react";
 import Button from "../common/Button";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -9,9 +9,8 @@ export default function Header({
   setActiveTab,
   booksCount,
   personsCount,
-  onOpenDailyQuote,
 }) {
-  const { signOut, user } = useAuth();
+  const { signOut } = useAuth();
   const navigate = useNavigate();
   const [loggingOut, setLoggingOut] = useState(false);
 
@@ -41,14 +40,6 @@ export default function Header({
             </div>
           </div>
           <div className="flex gap-2">
-            <Button
-              variant="ghost"
-              onClick={onOpenDailyQuote}
-              className="hidden sm:flex"
-            >
-              <Sparkles size={18} />
-              My daily quote
-            </Button>
             <Button
               variant={activeTab === "books" ? "primary" : "ghost"}
               onClick={() => setActiveTab("books")}

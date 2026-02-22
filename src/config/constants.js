@@ -14,7 +14,6 @@ export const DEBOUNCE_DELAY = 300; // milliseconds
 export const API_ENDPOINTS = {
   OPEN_LIBRARY: 'https://openlibrary.org/api/books',
   GOOGLE_BOOKS: 'https://www.googleapis.com/books/v1/volumes',
-  API_NINJAS_QUOTES: 'https://api.api-ninjas.com/v2/randomquotes',
 };
 
 // Book Status
